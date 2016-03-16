@@ -12,11 +12,14 @@ module Shellfold
     attr_reader :out_bar
     attr_reader :command
 
-    def initialize(*args, desc: "Running shell command", out: $stdout, **kwargs)
+    def initialize(*args, desc: "Running shell command",
+                          out: $stdout,
+                          last_output_max: 200, **kwargs)
       super()
 
       @desc = desc
       @out = out
+      @last_output_max = last_output_max
       @command = Mixlib::ShellOut.new(*args, **kwargs)
       @running = false
     end
@@ -38,24 +41,30 @@ module Shellfold
         end
       end
 
-      begin
-        command.run_command
-        stopped!
-
+      on_command_finish = proc do
         if not command.status.success?
           write_out{" [FAILED: #{command.status.inspect}]"}
           if ignore_failure
             write_out{"\n"}
           else
-            msg = ["-" * 44, " LAST OUTPUT ", "-" * 44, "\n",
+            msg = ["# COMMAND: #{command.command}\n",
+                   "# LAST OUTPUT BEGIN:\n",
                    *[*command.stdout.lines,
-                     *command.stderr.lines].reverse[0...2].reverse,
-                   "-" * 101, "\n"].join
-            write_out{"\n\n#{msg}"}
+                     *command.stderr.lines].reverse[0...@last_output_max].reverse,
+                   "# LAST OUTPUT END\n"].join
+            write_out{"\n#{msg}"}
           end
         else
           write_out{" [DONE]\n"}
         end
+      end
+
+      begin
+        command.run_command
+        stopped!
+        on_command_finish.call
+      rescue Mixlib::ShellOut::CommandTimeout
+        on_command_finish.call
       ensure
         thr.kill
       end
