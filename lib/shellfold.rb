@@ -12,15 +12,15 @@ module Shellfold
     attr_reader :out_bar
     attr_reader :command
 
-    def initialize(*args, desc: "Running shell command",
+    def initialize(*args, desc: nil,
                           out: $stdout,
                           last_output_max: 200, **kwargs)
       super()
 
-      @desc = desc
       @out = out
       @last_output_max = last_output_max
       @command = Mixlib::ShellOut.new(*args, **kwargs)
+      @desc = desc || command.command
       @running = false
     end
 
