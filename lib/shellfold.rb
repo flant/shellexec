@@ -64,7 +64,7 @@ module Shellfold
                    "# LAST OUTPUT END\n"].join
             write_out{"\n#{msg}"}
           else
-            write_out{"\n"}
+            write_out{"[IGNORE]\n"}
           end
         else
           write_out{" [DONE]\n"}
