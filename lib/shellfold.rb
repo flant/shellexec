@@ -25,6 +25,7 @@ module Shellfold
 
       @command = Mixlib::ShellOut.new(*args, **kwargs)
       @desc = desc || command.command
+      @desc_given = !!desc
       @out = out
       @live_log = live_log
       @log_failure = log_failure
@@ -32,12 +33,18 @@ module Shellfold
       @running = false
     end
 
+    def desc_given?
+      @desc_given
+    end
+
     def run
       running!
 
       progress_bar_thr = nil
 
-      unless live_log
+      if live_log
+        write_out{[desc_given? ? "#{desc}: " : nil, command.command, "\n"].join}
+      else
         write_out{desc}
         progress_bar_thr = Thread.new do
           loop do
@@ -48,8 +55,6 @@ module Shellfold
             end
           end
         end
-      else
-        write_out{desc + "\n"}
       end
 
       on_command_finish = proc do
