@@ -1,0 +1,10 @@
+language: ruby
+rvm: 2.2.1
+deploy:
+  provider: rubygems
+  api_key:
+    secure: VcdkzS67nJymeQT1Um45+MEEPOc1yCdqRJLj5PG2kk1enAqqNjVbBokttit/qGbbSswJp7DQIOG5e4vJarHKi1KaASt+0DC+XPfHQeFbMLbCODvApEIa3ZQr3avHq4DOxwzv+7eRj1HCFEQ+yjkZkeYyu1db8W6101pWoNNGAaYaL8Ra0nrfgjMH/xwyujqLKDiPzi5QkIAJy/45bMa96zMq8qKNMGE5B29ISufZ9GVfn93a8rdbCJlBQB01sdz8/r/px5HOHtXcSpHd5kBMPNzL/843rt7cXgmu01Hdo4qglD4GtEfTEogeRIAzqp2sMxa4dECKME5PFMmcfCdenChJyAVZBIBQYjSS4zGmKMwcJ+hIB2Hex9Em2jvxN78DyDlO9TBn+2ljbIPTPqeZpX6S+DneTnowmmVETP7cQrDUhznmst7TDrZS0viCIwySG7DXybfNtWxYm0J4hh5GHxcutDZPNT9f+fmlmqkTgH50QpgzOzYSkaNZfurGiU/nEi6n9SaGIuBEB9RPyWKJbFiFLbmF1wqQdxYRYblKx+OCbNv4/2n6KbhexzjAiy+JvZqMfdW+/mjpyNH5NMyEk+tKCYedqnM/yNgsmDNDJhaXjdbljh59xnwrXruer28szJU2QyXCYtcsgd27surcaTWmmNxWwyCdIrk84oh8nZc=
+  gem: shellfold
+  on:
+    tags: true
+    repo: flant/shellfold
