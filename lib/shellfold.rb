@@ -7,52 +7,64 @@ module Shellfold
   class Command
     include MonitorMixin
 
+    attr_reader :command
     attr_reader :desc
     attr_reader :out
-    attr_reader :out_bar
-    attr_reader :command
+    attr_reader :live_log
+    attr_reader :log_failure
+    attr_reader :last_output_max
 
     def initialize(*args, desc: nil,
                           out: $stdout,
+                          live_log: false,
+                          log_failure: false,
                           last_output_max: 200, **kwargs)
       super()
 
-      @out = out
-      @last_output_max = last_output_max
+      kwargs.merge!(live_stderr: out, live_stdout: out) if live_log
+
       @command = Mixlib::ShellOut.new(*args, **kwargs)
       @desc = desc || command.command
+      @out = out
+      @live_log = live_log
+      @log_failure = log_failure
+      @last_output_max = last_output_max
       @running = false
     end
 
-    def run!
-      run(ignore_failure: false)
-    end
-
-    def run(ignore_failure: true)
+    def run
       running!
-      write_out{"#{desc}"}
 
-      thr = Thread.new do
-        loop do
-          sleep 10
-          break unless running?
-          write_out{' '} if not @been_here.tap{@been_here = true}
-          write_out{'.'}
+      progress_bar_thr = nil
+
+      unless live_log
+        write_out{desc}
+        progress_bar_thr = Thread.new do
+          loop do
+            sleep 10
+            break unless running?
+            write_out do
+              [@been_here.tap{@been_here = true} ? nil : ' ', '.'].compact.join
+            end
+          end
         end
+      else
+        write_out{desc + "\n"}
       end
 
       on_command_finish = proc do
+        next if live_log
         if not command.status.success?
           write_out{" [FAILED: #{command.status.inspect}]"}
-          if ignore_failure
-            write_out{"\n"}
-          else
+          if log_failure
             msg = ["# COMMAND: #{command.command}\n",
                    "# LAST OUTPUT BEGIN:\n",
                    *[*command.stdout.lines,
-                     *command.stderr.lines].reverse[0...@last_output_max].reverse,
+                     *command.stderr.lines].last(last_output_max),
                    "# LAST OUTPUT END\n"].join
             write_out{"\n#{msg}"}
+          else
+            write_out{"\n"}
           end
         else
           write_out{" [DONE]\n"}
@@ -66,7 +78,7 @@ module Shellfold
       rescue Mixlib::ShellOut::CommandTimeout
         on_command_finish.call
       ensure
-        thr.kill
+        progress_bar_thr.kill if progress_bar_thr
       end
 
       command
@@ -92,12 +104,12 @@ module Shellfold
   end # Command
 
   class << self
-    def run(*args)
-      Command.new(*args).run
+    def run(*args, **kwargs)
+      Command.new(*args, **kwargs).run
     end
 
-    def run!(*args)
-      Command.new(*args).run!
+    def run!(*args, **kwargs)
+      Command.new(*args, log_failure: true, **kwargs).run
     end
   end # << self
 end # Shellfold
