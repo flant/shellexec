@@ -51,7 +51,7 @@ module Shellfold
             sleep 10
             break unless running?
             write_out do
-              [@been_here.tap{@been_here = true} ? nil : ' ', '.'].compact.join
+              [@been_here.tap{@been_here = true} ? nil : "\n", ".\n"].compact.join
             end
           end
         end
