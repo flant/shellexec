@@ -58,7 +58,7 @@ module Shellfold
       on_command_finish = proc do
         next if live_log
         if not command.status.success?
-          write_out{"#{desc} [FAILED: #{command.status.inspect}]"}
+          write_out{"=> #{desc} [FAILED: #{command.status.inspect}]"}
           if log_failure
             msg = ["# COMMAND: #{command.command}\n",
                    "# LAST OUTPUT BEGIN:\n",
@@ -70,7 +70,7 @@ module Shellfold
             write_out{"\n"}
           end
         else
-          write_out{"#{desc} [DONE]\n"}
+          write_out{"=> #{desc} [DONE]\n"}
         end
       end
 
