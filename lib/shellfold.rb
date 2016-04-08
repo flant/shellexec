@@ -45,14 +45,12 @@ module Shellfold
       if live_log
         write_out{[desc_given? ? "#{desc} " : nil, "[#{command.command}]", "\n"].compact.join}
       else
-        write_out{desc}
+        write_out{desc + "\n"}
         progress_bar_thr = Thread.new do
           loop do
             sleep 10
             break unless running?
-            write_out do
-              [@been_here.tap{@been_here = true} ? nil : "\n", ".\n"].compact.join
-            end
+            write_out{".\n"}
           end
         end
       end
