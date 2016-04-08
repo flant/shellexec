@@ -50,7 +50,7 @@ module Shellfold
           loop do
             sleep 10
             break unless running?
-            write_out{".\n"}
+            write_out{"   .\n"}
           end
         end
       end
