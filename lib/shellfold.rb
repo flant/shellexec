@@ -70,7 +70,7 @@ module Shellfold
             write_out{"\n"}
           end
         else
-          write_out{"=> #{desc} [DONE]\n"}
+          write_out{"=> #{desc} [OK]\n"}
         end
       end
 
