@@ -13,12 +13,15 @@ module Shellfold
     attr_reader :live_log
     attr_reader :log_failure
     attr_reader :last_output_max
+    attr_reader :quiet
 
     def initialize(*args, desc: nil,
                           out: $stdout,
                           live_log: false,
                           log_failure: false,
-                          last_output_max: 200, **kwargs)
+                          last_output_max: 200,
+                          quiet: false,
+                          **kwargs)
       super()
 
       kwargs.merge!(live_stderr: out, live_stdout: out) if live_log
@@ -30,6 +33,7 @@ module Shellfold
       @live_log = live_log
       @log_failure = log_failure
       @last_output_max = last_output_max
+      @quiet = quiet
       @running = false
     end
 
@@ -94,6 +98,7 @@ module Shellfold
     private
 
     def write_out(&blk)
+      return if quiet
       synchronize{ out.write(blk.call) }
     end
 
